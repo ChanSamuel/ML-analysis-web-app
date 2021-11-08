@@ -1,25 +1,33 @@
-def get_analyst_names():
+def all_analyst_names():
     """
     Returns the formal names of all analyst methods.
     Used by Handler.unsupported_methods() to indicate which analyst methods are unsupported.
     """
-    names = ['n_samples', 'n_features', 'accuracy']
+    names = ['shape', 'accuracy']
     return names
+
+
+def all_problem_names():
+    return 'classification', 'regression'
 
 
 class Handler:
     """
-    The parent class of all Handler types. It contains methods of the form "analysistype_op()".
+    The parent class of all Handler types. It contains unimplemented template methods for loading the model/data,
+    among other things.
 
-    These methods perform a specific analysis of the data or model (i.e., get the number of samples, check for class
-    imbalance, look at the accuracy of the model, etc) and display the analysis findings.
+    Subclasses of Handler have methods which perform a specific analysis of the data or model
+    (i.e., get the number of samples, check for class imbalance, look at the accuracy of the model, etc)
+    and display the analysis findings.
 
-    No class other than ModelHandler and DataHandler should directly extend this class; any subclass of Handler should
-    instead extend these two classes.
+    Handler.supported_methods() returns a list whose contents are the names of the supported analysis types
+    corresponding to the implemented analysis methods of the subclasses. Each subclass MUST override
+    Handler.supported_methods() in order to indicate to the app module which methods can be called.
+    To accomplish this, handlers.all_analyst_names() should be used, as it provides a consistent
+    naming scheme to refer to each analysis method.
 
-    For any subclass overriding the analysis methods, the code which performs the actual analysis should be delegated
-    to the respective analyst methods in the analysers package. All methods should also preferably be overridden, with
-    unsupported methods raising a utilities.UnsupportedMethodException.
+    All of Handler's methods should also preferably be overridden, with unsupported methods raising a
+    utilities.UnsupportedMethodException.
 
     At least the following pre-conditions should be checked by the corresponding analyst method:
      - If the problem type (classification or regression) of this Handler is suitable for this analysis.
@@ -31,39 +39,61 @@ class Handler:
         """This constructor does nothing, subclasses are expected to implement this."""
         pass
 
-    def unsupported_methods(self):
+    def get_tabular(self):
         """
-        Returns the list of unsupported analysts/methods.
-        The elements of the returned list are the Analyst.name() of the corresponding analysis method.
+        Obtain a tabular representation of the data.
+        It is possible that some Handlers may not support this method.
+        Must be implemented by subclass.
 
-        :return: the list of unsupported Analyst names.
+        :returns: the data as a Pandas dataframe.
         """
-        raise NotImplementedError('unsupported_methods must be overridden!')
+        raise NotImplementedError('get_tabular must be overridden!')
 
-    def n_samples_op(self):
+    def get_data(self):
         """
-        Perform an analysis to return the number of samples in the data.
-        This method will throw an exception if either not overridden by a subclass or super() is called.
+        Return the loaded data in some suitable format.
+        The format is decided by the subclass.
+        Must be implemented by subclass.
 
-        :return: None
+        :returns: the loaded data.
         """
-        raise NotImplementedError('n_samples_op must be overridden!')
+        raise NotImplementedError('get_data must be overridden!')
 
-    def n_features_op(self):
+    def load_data(self, file):
         """
-        Perform an analysis to return the number of features in the data.
-        This method will throw an exception if either not overridden by a subclass or super() is called.
+        Loads and returns the data from a given file.
+        Must be implemented by the subclass.
 
-        :return: None
+        :returns: the data.
         """
-        raise NotImplementedError('n_features_op must be overridden!')
+        raise NotImplementedError('get_data must be overridden!')
 
-    def accuracy_op(self):
-        """
-        Perform an analysis to return the accuracy in the model.
-        This method should only work for classification models.
-        This method will throw an exception if either not overridden by a subclass or super() is called.
+    def load_model(self, file):
+        """Load and return the file as a model in some format."""
+        raise NotImplementedError('load_model must be overridden!')
 
-        :return: None
+    def predict(self, test_data):
         """
-        raise NotImplementedError('accuracy_op must be overridden!')
+        Return the predictions for each datapoint using the stored model in this ModelHandler.
+        Should return a dataframe with a column for the actual target labels, and a column for the predicted
+        target labels.
+        """
+        raise NotImplementedError('predict must be overridden!')
+
+    def predict_proba(self, test_data):
+        """
+        Return the prediction probabilities using the stored model in this ModelHandler.
+        May not necessarily be supported by the subclass implementation.
+        """
+        raise NotImplementedError('predict_proba must be overridden!')
+
+    def supported_methods(self):
+        """
+        Returns the list of supported analysts/methods.
+        The elements of the returned list are in accordance with handlers.all_analyst_names().
+        The contents of the returned list determine what analysis' the app module sees this Handler is
+        capable of.
+
+        :return: the list of supported Analyst names.
+        """
+        raise NotImplementedError('supported_methods must be overridden!')
