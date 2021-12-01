@@ -233,3 +233,32 @@ class StandardHandler(Handler):
 
         # Display the results.
         print(displayed_table)
+
+    def corr_op(self):
+        """
+        Calculate and display the correlations between features.
+        Also reports any strong correlations (> 0.7).
+        """
+        tbl = self.get_tabular()
+        corr_tbl = tbl.corr()
+        print(corr_tbl)
+
+        # Find any strong correlations.
+        strong_corrs = {}
+        for i in range(corr_tbl.shape[0]):
+            for j in range(corr_tbl.shape[0]):
+                if i != j: # Skip comparisons between same features.
+                    r = abs(corr_tbl.iloc[i, j])
+                    if r >= 0.7:
+                        key = str(tbl.columns[i]) + ' & ' + str(tbl.columns[j])
+                        strong_corrs[key] = r
+
+        # Report any strong correlations.
+        if len(strong_corrs) >= 0:
+            print(f'{len(strong_corrs)} strong correlations found:')
+            for kv in strong_corrs.items():
+                key = kv[0]
+                value = kv[1]
+                print(f'{key}: {round(value, 3)}')
+        else:
+            print('No strong correlations found.')
