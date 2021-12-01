@@ -1,9 +1,10 @@
 def all_analyst_names():
     """
     Returns the formal names of all analyst methods.
-    Used by Handler.unsupported_methods() to indicate which analyst methods are unsupported.
+    Used by Handler.supported_methods() to indicate which analysis methods are supported.
+    Everytime a new analyst method is implemented, the returned list should be updated.
     """
-    names = ['shape', 'accuracy']
+    names = ['shape', 'accuracy', 'show_data', 'mean_std']
     return names
 
 
@@ -72,7 +73,7 @@ class Handler:
         """Load and return the file as a model in some format."""
         raise NotImplementedError('load_model must be overridden!')
 
-    def predict(self, test_data):
+    def predict(self):
         """
         Return the predictions for each datapoint using the stored model in this ModelHandler.
         Should return a dataframe with a column for the actual target labels, and a column for the predicted
@@ -80,7 +81,7 @@ class Handler:
         """
         raise NotImplementedError('predict must be overridden!')
 
-    def predict_proba(self, test_data):
+    def predict_proba(self):
         """
         Return the prediction probabilities using the stored model in this ModelHandler.
         May not necessarily be supported by the subclass implementation.
