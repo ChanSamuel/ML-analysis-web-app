@@ -4,7 +4,7 @@ def all_analyst_names():
     Used by Handler.supported_methods() to indicate which analysis methods are supported.
     Everytime a new analyst method is implemented, the returned list should be updated.
     """
-    names = ['shape', 'accuracy', 'show_data', 'mean_std', 'corr']
+    names = ['shape', 'accuracy', 'show_data', 'mean_std', 'corr', 'f1_score', 'mse_score', 'r2_score']
     return names
 
 

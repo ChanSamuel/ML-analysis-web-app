@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 import numpy as np
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_score
 
 from handlers import Handler, all_analyst_names, all_problem_names
 from handlers.utilities import FileLoadingException, UnsupportedMethodException
@@ -86,12 +86,12 @@ class StandardHandler(Handler):
         if not isinstance(target_idx, int):
             raise ValueError('Precondition: target_idx must be an int')
 
-        self.problem_type = problem_type
-        self.target_idx = target_idx
-        self.data = self.load_data(data_file)
-        self.X = self.data.drop(self.data.columns[self.target_idx], axis=1)
-        self.y = self.data.iloc[::, self.target_idx]
-        self.model = self.load_model(model_file)
+        self.problem_type = problem_type  # A string which is either classification or regression.
+        self.target_idx = target_idx  # The column index of the target class from the data.
+        self.data = self.load_data(data_file)  # The raw data as loaded by load_data().
+        self.X = self.data.drop(self.data.columns[self.target_idx], axis=1)  # The training features.
+        self.y = self.data.iloc[::, self.target_idx]  # The target column.
+        self.model = self.load_model(model_file) # The sklearn trained model.
 
     # ================================= PREDICTION METHODS =================================
 
@@ -262,3 +262,57 @@ class StandardHandler(Handler):
                 print(f'{key}: {round(value, 3)}')
         else:
             print('No strong correlations found.')
+
+    def f1_score_op(self):
+        """
+        Calculate the f1 score(s) for the current model.
+        If current model is multi-class, then the F1-score for each class will be shown.
+        Raises UnsupportedMethodException if current model is not a classification model.
+
+        :raises: UnsupportedMethodException
+        """
+
+        # Preconditions.
+        if self.problem_type != 'classification':
+            raise UnsupportedMethodException('F1 score cannot be used on non-classification model.')
+
+        # Give the f1 scores for each class if not binary classification.
+        if len(self.model.classes_) == 2:
+            score = f1_score(self.y, self.model.predict(self.X))
+            print('The F1 score is:', score)
+        else:
+            scores = f1_score(self.y, self.model.predict(self.X), average=None)
+            score_table = pd.DataFrame(columns=self.model.classes_)
+            score_table.loc[0] = scores
+            print('The F1 scores for each class are:')
+            print(score_table)
+
+    def mse_score_op(self):
+        """
+        Calculate the MSE (Mean Squared Error) for the current model.
+        Raises UnsupportedMethodException if current model is not a regression model.
+
+        :raises: UnsupportedMethodException
+        """
+
+        # Preconditions.
+        if self.problem_type != 'regression':
+            raise UnsupportedMethodException('MSE cannot be used on non-regression model.')
+
+        score = mean_squared_error(self.y, self.model.predict(self.X))
+        print('The MSE is:', score)
+
+    def r2_score_op(self):
+        """
+        Calculate the R^2 (Coefficient of Determination) score for the current model.
+        Raises UnsupportedMethodException if current model is not a regression model.
+
+        :raises: UnsupportedMethodException
+        """
+
+        # Preconditions.
+        if self.problem_type != 'regression':
+            raise UnsupportedMethodException('R^2 cannot be used on non-regression model.')
+
+        score = r2_score(self.y, self.model.predict(self.X))
+        print('The R^2 score is:', score)
