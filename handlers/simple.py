@@ -8,6 +8,50 @@ from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_sco
 from handlers import Handler, all_analyst_names, all_problem_names
 from handlers.utilities import FileLoadingException, UnsupportedMethodException
 
+from warnings import warn
+
+
+def warning(msg):
+    """
+    Raises a warning to inform the user but not interrupt execution.
+    :param msg: The warning message.
+    """
+    warn(msg)
+
+
+def validate_data(data):
+    """
+    Validates the given dataframe by throwing an exception or warning if the data
+    does not meet the following criteria:
+    1). Dataframe contains atleast one missing value (warning).
+    2). Dataframe contains no rows (exception).
+    3). Dataframe contains only 1 column (exception).
+
+    A warning raised may also be accompanied by a correction to the data, such
+    as in the case of missing values (rows will be dropped).
+
+    :param data: The dataframe loaded in.
+    """
+
+    if data is None:
+        raise ValueError('Preconditions: Data cannot be None')
+    if len(data) == 0:
+        raise ValueError('Data cannot be empty!')
+    if data.shape[1] <= 1:
+        raise ValueError('Data must be greater than 1 column.')
+
+    n_missing = data.isnull().sum().sum()
+    if n_missing > 0:
+        # Drop the rows with missing values.
+        data.dropna(axis=0, how='any', inplace=True)
+
+        # Re-check that the data is still of acceptable length.
+        if len(data) == 0:
+            raise ValueError('Data cannot be empty!')
+
+        # Provide a warning with a message informing the user what just happened.
+        warning(f'{n_missing} missing values were found and dropped.')
+
 
 class StandardHandler(Handler):
     """
@@ -43,6 +87,7 @@ class StandardHandler(Handler):
             raise ValueError('Precondition check: File cannot be None')
 
         data = pd.read_csv(file)
+        validate_data(data)
 
         # Post-condition check
         if data is None:
