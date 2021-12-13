@@ -1,36 +1,21 @@
-def all_analyst_names():
-    """
-    Returns the formal names of all analyst methods.
-    Used by Handler.supported_methods() to indicate which analysis methods are supported.
-    Everytime a new analyst method is implemented, the returned list should be updated.
-    """
-    names = ['shape', 'accuracy', 'show_data', 'mean_std', 'corr', 'f1_score', 'mse_score', 'r2_score']
-    return names
-
-
 def all_problem_names():
     return 'classification', 'regression'
 
 
 class Handler:
     """
-    The parent class of all Handler types. It contains unimplemented template methods for loading the model/data,
-    among other things.
+    The parent class of all Handler types. It contains unimplemented template methods for loading the model/data.
 
-    Subclasses of Handler have methods which perform a specific analysis of the data or model
-    (i.e., get the number of samples, check for class imbalance, look at the accuracy of the model, etc)
-    and display the analysis findings.
+    The goal of a Handler object is to load the data and model from their respective files and store them as fields.
+    All other methods in Handler are there for convenience.
 
-    Handler.supported_methods() returns a list whose contents are the names of the supported analysis types
-    corresponding to the implemented analysis methods of the subclasses. Each subclass MUST override
-    Handler.supported_methods() in order to indicate to the app module which methods can be called.
-    To accomplish this, handlers.all_analyst_names() should be used, as it provides a consistent
-    naming scheme to refer to each analysis method.
+    Analysers in the 'analysers' package can then use these fields and methods to analyse
+    the model and report the results.
 
-    All of Handler's methods should also preferably be overridden, with unsupported methods raising a
-    utilities.UnsupportedMethodException.
+    It is recommended that subclasses override all methods, with unsupported methods raising an
+    exceptions.UnsupportedMethodException
 
-    At least the following pre-conditions should be checked by the corresponding analyst method:
+    It is recommended that at least the following pre-conditions should be checked by the corresponding analyst method:
      - If the problem type (classification or regression) of this Handler is suitable for this analysis.
      - If any additional handlers passed as parameters are of the correct implementation.
 
@@ -84,17 +69,6 @@ class Handler:
     def predict_proba(self):
         """
         Return the prediction probabilities using the stored model in this ModelHandler.
-        May not necessarily be supported by the subclass implementation.
+        May not necessarily be supported by the subclass' implementation.
         """
         raise NotImplementedError('predict_proba must be overridden!')
-
-    def supported_methods(self):
-        """
-        Returns the list of supported analysts/methods.
-        The elements of the returned list are in accordance with handlers.all_analyst_names().
-        The contents of the returned list determine what analysis' the app module sees this Handler is
-        capable of.
-
-        :return: the list of supported Analyst names.
-        """
-        raise NotImplementedError('supported_methods must be overridden!')

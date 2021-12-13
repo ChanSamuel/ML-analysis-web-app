@@ -1,21 +1,7 @@
-import pickle
-
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-
 from handlers.simple import StandardHandler
-
-# Create the model.
-# print('Training the model.')
-# data = pd.read_csv('testfiles/Iris.csv')
-# X = data.iloc[:, :-1]
-# y = data.iloc[:, -1]
-# clf = LogisticRegression(random_state=0, max_iter=1000).fit(X, y)
+from analysers import accuracy, corr, f1, mean_std, mse, r2, shape, show_data
 
 filename = 'test_model_iris.sav'
-# Save the model to disk
-# print('Saving model to disk')
-# pickle.dump(clf, open('testfiles/' + filename, 'wb'))
 
 # Obtain the saved files.
 print('Loading file objects')
@@ -28,11 +14,11 @@ sh = StandardHandler(data_file, model_file, problem_type='classification', targe
 
 # Invoking analysis operations.
 print('Doing analysis')
-sh.shape_op()
-sh.accuracy_op()
-sh.show_data_op()
-sh.mean_std_op()
-sh.corr_op()
-sh.f1_score_op()
-# sh.mse_score_op()
-# sh.r2_score_op()
+shape.analyse(sh)
+accuracy.analyse(sh)
+show_data.analyse(sh)
+mean_std.analyse(sh)
+corr.analyse(sh)
+f1.analyse(sh)
+# mse.analyse(sh)
+# r2.analyse(sh)
