@@ -1,5 +1,5 @@
 from handlers.simple import StandardHandler
-from analysers import accuracy, corr, f1, mean_std, mse, r2, shape, show_data
+from analysers import accuracy, corr, f1, mean_std, mse, r2, shape, show_data, xai_shap
 
 filename = 'test_model_iris.sav'
 
@@ -20,5 +20,7 @@ show_data.analyse(sh)
 mean_std.analyse(sh)
 corr.analyse(sh)
 f1.analyse(sh)
+print('Doing SHAP')
+xai_shap.analyse(sh)
 # mse.analyse(sh)
 # r2.analyse(sh)

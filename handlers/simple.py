@@ -149,7 +149,6 @@ class StandardHandler(Handler):
     def predict_proba(self):
         """
         Return the prediction probabilities of the stored model as a dataframe.
-        The class name of each column in the returned dataframe is given in df.columns.
 
         :return: a dataframe of shape (n_samples, n_classes)
         """
@@ -162,10 +161,10 @@ class StandardHandler(Handler):
 
         preds = self.model.predict_proba(self.X)
 
-        df = pd.DataFrame(preds)
-        df.columns = self.model.classes_  # Set the predicted class names.
+        #df = pd.DataFrame(preds)
+        #df.columns = self.model.classes_  # Set the predicted class names.
 
-        return df
+        return preds
 
     # ================================= DATA GETTER METHODS =================================
 
