@@ -146,26 +146,6 @@ class StandardHandler(Handler):
 
         return pd.DataFrame({'actual': actuals, 'predicted': preds})
 
-    def predict_proba(self):
-        """
-        Return the prediction probabilities of the stored model as a dataframe.
-
-        :return: a dataframe of shape (n_samples, n_classes)
-        """
-
-        # Pre-condition checks
-        if self.model is None:
-            raise ValueError('Precondition: self.model cannot be None')
-        if not hasattr(self.model, 'predict_proba'):
-            raise UnsupportedMethodException('predict_proba is not supported for self.model')
-
-        preds = self.model.predict_proba(self.X)
-
-        #df = pd.DataFrame(preds)
-        #df.columns = self.model.classes_  # Set the predicted class names.
-
-        return preds
-
     # ================================= DATA GETTER METHODS =================================
 
     def get_tabular(self):

@@ -65,10 +65,3 @@ class Handler:
         target labels.
         """
         raise NotImplementedError('predict must be overridden!')
-
-    def predict_proba(self):
-        """
-        Return the prediction probabilities using the stored model in this ModelHandler.
-        May not necessarily be supported by the subclass' implementation.
-        """
-        raise NotImplementedError('predict_proba must be overridden!')
