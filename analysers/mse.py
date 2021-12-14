@@ -7,8 +7,31 @@ from handlers.simple import StandardHandler
 
 
 # multimethod annotation is for multiple dispatch to different handler types.
+from handlers.testing import TestHandler
+
+
 @multimethod
 def analyse(hdlr: StandardHandler):
+    """
+    Calculate the MSE (Mean Squared Error) for the current model.
+    Raises UnsupportedMethodException if current model is not a regression model.
+
+    :raises: UnsupportedMethodException
+    """
+
+    if hdlr is None:
+        raise ValueError('Precondition: handler cannot be None')
+
+    # Preconditions.
+    if hdlr.problem_type != 'regression':
+        raise UnsupportedMethodException('MSE cannot be used on non-regression model.')
+
+    score = mean_squared_error(hdlr.y, hdlr.model.predict(hdlr.X))
+    print('The MSE is:', score)
+
+
+@multimethod
+def analyse(hdlr: TestHandler):
     """
     Calculate the MSE (Mean Squared Error) for the current model.
     Raises UnsupportedMethodException if current model is not a regression model.
@@ -37,9 +60,9 @@ def supported_handlers():
 
     The returned list should never contain the Handler class itself.
 
-    :return: supported: [StandardHandler]
+    :return: supported: [StandardHandler, TestHandler]
     """
-    return [StandardHandler]
+    return [StandardHandler, TestHandler]
 
 
 def supports(hdlr: Handler):

@@ -8,8 +8,39 @@ from handlers.exceptions import UnsupportedMethodException
 
 
 # multimethod annotation is for multiple dispatch to different handler types.
+from handlers.testing import TestHandler
+
+
 @multimethod
 def analyse(hdlr: StandardHandler):
+    """
+    Calculate the f1 score(s) for the current model.
+    If current model is multi-class, then the F1-score for each class will be shown.
+    Raises UnsupportedMethodException if current model is not a classification model.
+
+    :raises: UnsupportedMethodException
+    """
+
+    # Preconditions.
+    if hdlr is None:
+        raise ValueError('Precondition: handler cannot be None')
+    if hdlr.problem_type != 'classification':
+        raise UnsupportedMethodException('F1 score cannot be used on non-classification model.')
+
+    # Give the f1 scores for each class if not binary classification.
+    if len(hdlr.model.classes_) == 2:
+        score = f1_score(hdlr.y, hdlr.model.predict(hdlr.X))
+        print('The F1 score is:', score)
+    else:
+        scores = f1_score(hdlr.y, hdlr.model.predict(hdlr.X), average=None)
+        score_table = pd.DataFrame(columns=hdlr.model.classes_)
+        score_table.loc[0] = scores
+        print('The F1 scores for each class are:')
+        print(score_table)
+
+
+@multimethod
+def analyse(hdlr: TestHandler):
     """
     Calculate the f1 score(s) for the current model.
     If current model is multi-class, then the F1-score for each class will be shown.
@@ -46,9 +77,9 @@ def supported_handlers():
 
     The returned list should never contain the Handler class itself.
 
-    :return: supported: [StandardHandler]
+    :return: supported: [StandardHandler, TestHandler]
     """
-    return [StandardHandler]
+    return [StandardHandler, TestHandler]
 
 
 def supports(hdlr: Handler):

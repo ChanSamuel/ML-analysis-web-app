@@ -5,8 +5,33 @@ from handlers import Handler
 from handlers.simple import StandardHandler
 
 # multimethod annotation is for multiple dispatch to different handler types.
+from handlers.testing import TestHandler
+
+
 @multimethod
 def analyse(hdlr: StandardHandler):
+    """
+    Perform an analysis to return the accuracy in the model.
+    This method should only work for classification models.
+
+    :return: None
+    """
+
+    # Preconditions
+    if hdlr is None:
+        raise ValueError('Precondition: handler cannot be None')
+    if hdlr.problem_type != 'classification':  # Check that the current problem type is classification.
+        raise ValueError(f'Precondition: problem type of {hdlr.problem_type} is not supported')
+
+    df = hdlr.predict()
+    acc = accuracy_score(df['actual'], df['predicted'])
+
+    # Display the results.
+    print(f'Accuracy is {round(acc * 100, 3)}% (3 dp)')
+
+
+@multimethod
+def analyse(hdlr: TestHandler):
     """
     Perform an analysis to return the accuracy in the model.
     This method should only work for classification models.
@@ -37,9 +62,9 @@ def supported_handlers():
 
     The returned list should never contain the Handler class itself.
 
-    :return: supported: [StandardHandler]
+    :return: supported: [StandardHandler, TestHandler]
     """
-    return [StandardHandler]
+    return [StandardHandler, TestHandler]
 
 
 def supports(hdlr: Handler):
@@ -63,4 +88,3 @@ def supports(hdlr: Handler):
             return True
 
     return False
-

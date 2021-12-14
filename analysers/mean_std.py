@@ -7,8 +7,32 @@ from handlers.simple import StandardHandler
 
 
 # multimethod annotation is for multiple dispatch to different handler types.
+from handlers.testing import TestHandler
+
+
 @multimethod
 def analyse(hdlr: StandardHandler):
+    """Calculate and show the mean and standard deviation for every feature of the data."""
+
+    if hdlr is None:
+        raise ValueError('Precondition: handler cannot be None')
+
+    tbl = hdlr.get_tabular()
+
+    # Calculate and transpose the returned results so that the columns correspond to the feature names.
+    means = pd.DataFrame(np.mean(tbl, axis=0)).T
+    stds = pd.DataFrame(np.std(tbl, axis=0)).T
+
+    # Join the two rows into one table.
+    displayed_table = pd.concat([means, stds])
+    displayed_table.index = ['Mean', 'Std']
+
+    # Display the results.
+    print(displayed_table)
+
+
+@multimethod
+def analyse(hdlr: TestHandler):
     """Calculate and show the mean and standard deviation for every feature of the data."""
 
     if hdlr is None:
@@ -38,9 +62,9 @@ def supported_handlers():
 
     The returned list should never contain the Handler class itself.
 
-    :return: supported: [StandardHandler]
+    :return: supported: [StandardHandler, TestHandler]
     """
-    return [StandardHandler]
+    return [StandardHandler, TestHandler]
 
 
 def supports(hdlr: Handler):

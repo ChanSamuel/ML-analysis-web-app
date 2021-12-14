@@ -5,8 +5,17 @@ from handlers.simple import StandardHandler
 
 
 # multimethod annotation is for multiple dispatch to different handler types.
+from handlers.testing import TestHandler
+
+
 @multimethod
 def analyse(hdlr: StandardHandler):
+    """Show a few entries of the data."""
+    print(hdlr.get_data())
+
+
+@multimethod
+def analyse(hdlr: TestHandler):
     """Show a few entries of the data."""
     print(hdlr.get_data())
 
@@ -21,9 +30,9 @@ def supported_handlers():
 
     The returned list should never contain the Handler class itself.
 
-    :return: supported: [StandardHandler]
+    :return: supported: [StandardHandler, TestHandler]
     """
-    return [StandardHandler]
+    return [StandardHandler, TestHandler]
 
 
 def supports(hdlr: Handler):
