@@ -1,20 +1,22 @@
 from multimethod import multimethod
 from sklearn.metrics import accuracy_score
-
 from handlers import Handler
 from handlers.simple import StandardHandler
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
     """
     Perform an analysis to return the accuracy in the model.
     This method should only work for classification models.
 
-    :return: None
+    :return: an accuracy score between 0 and 1.
+
     """
 
     # Preconditions
@@ -26,8 +28,7 @@ def analyse(hdlr: StandardHandler):
     df = hdlr.predict()
     acc = accuracy_score(df['actual'], df['predicted'])
 
-    # Display the results.
-    print(f'Accuracy is {round(acc * 100, 3)}% (3 dp)')
+    return acc
 
 
 @multimethod

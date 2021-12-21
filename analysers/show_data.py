@@ -1,17 +1,17 @@
 from multimethod import multimethod
-
 from handlers import Handler
 from handlers.simple import StandardHandler
-
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
-    """Show a few entries of the data."""
-    print(hdlr.get_data())
+    """Return a few entries of the data."""
+    return hdlr.get_data().head()
 
 
 @multimethod

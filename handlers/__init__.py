@@ -1,3 +1,16 @@
+"""
+The handlers package contains a collection of modules which each define their own Handler type.
+
+The goal of a Handler is to prevent clients from having to worry about properly loading the model/data files
+into a usable form, validating the loaded model/data, etc. Instead, the Handler will load the data and model from
+their respective files, validate it, and store them as fields, which can be retrieved by clients to use as they please.
+
+Analysers in the 'analysers' package can then use the Handler fields and methods to analyse
+the model and return the results.
+
+"""
+
+
 def all_problem_names():
     return 'classification', 'regression'
 
@@ -6,8 +19,9 @@ class Handler:
     """
     The parent class of all Handler types. It contains unimplemented template methods for loading the model/data.
 
-    The goal of a Handler object is to load the data and model from their respective files and store them as fields.
-    All other methods in Handler are there for convenience.
+    The goal of a Handler object is to prevent clients from having to worry about properly loading the model/data files
+    into a usable form, validating the loaded model/data, etc. Instead, the Handler will load the data and model from
+    their respective files and store them as fields, which can be retrieved by clients to use as they please.
 
     Analysers in the 'analysers' package can then use these fields and methods to analyse
     the model and report the results.

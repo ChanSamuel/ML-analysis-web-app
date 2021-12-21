@@ -4,21 +4,23 @@ from sklearn.metrics import f1_score
 
 from handlers import Handler
 from handlers.simple import StandardHandler
-from handlers.exceptions import UnsupportedMethodException
-
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from exceptions import UnsupportedMethodException
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
     """
-    Calculate the f1 score(s) for the current model.
-    If current model is multi-class, then the F1-score for each class will be shown.
+    Calculate and return the f1 score(s) for the current model.
+    If current model is multi-class, then the F1-score for each class will be returned as a dataframe.
     Raises UnsupportedMethodException if current model is not a classification model.
 
     :raises: UnsupportedMethodException
+    :returns: a score between 0 and 1, or a dataframe of shape [1, c] where c is the number of classes.
     """
 
     # Preconditions.
@@ -30,13 +32,12 @@ def analyse(hdlr: StandardHandler):
     # Give the f1 scores for each class if not binary classification.
     if len(hdlr.model.classes_) == 2:
         score = f1_score(hdlr.y, hdlr.model.predict(hdlr.X))
-        print('The F1 score is:', score)
+        return score
     else:
         scores = f1_score(hdlr.y, hdlr.model.predict(hdlr.X), average=None)
         score_table = pd.DataFrame(columns=hdlr.model.classes_)
         score_table.loc[0] = scores
-        print('The F1 scores for each class are:')
-        print(score_table)
+        return score_table
 
 
 @multimethod

@@ -1,18 +1,24 @@
 import numpy as np
 import pandas as pd
 from multimethod import multimethod
-
 from handlers import Handler
 from handlers.simple import StandardHandler
-
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
-    """Calculate and show the mean and standard deviation for every feature of the data."""
+    """
+    Calculate and return the mean and standard deviation for every feature of the data.
+    Returns a table of n columns and 2 rows. Columns represent the features, and rows are the
+    mean and standard deviation respectively.
+
+    :returns: dataframe of shape [2, n]
+    """
 
     if hdlr is None:
         raise ValueError('Precondition: handler cannot be None')
@@ -27,8 +33,7 @@ def analyse(hdlr: StandardHandler):
     displayed_table = pd.concat([means, stds])
     displayed_table.index = ['Mean', 'Std']
 
-    # Display the results.
-    print(displayed_table)
+    return displayed_table
 
 
 @multimethod

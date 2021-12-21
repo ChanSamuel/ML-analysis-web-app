@@ -1,22 +1,23 @@
 from multimethod import multimethod
 from sklearn.metrics import mean_squared_error
-
 from handlers import Handler
-from handlers.exceptions import UnsupportedMethodException
+from exceptions import UnsupportedMethodException
 from handlers.simple import StandardHandler
-
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
     """
-    Calculate the MSE (Mean Squared Error) for the current model.
+    Calculate and return the MSE (Mean Squared Error) for the current model.
     Raises UnsupportedMethodException if current model is not a regression model.
 
     :raises: UnsupportedMethodException
+    :returns: a number representing the MSE.
     """
 
     if hdlr is None:
@@ -27,7 +28,7 @@ def analyse(hdlr: StandardHandler):
         raise UnsupportedMethodException('MSE cannot be used on non-regression model.')
 
     score = mean_squared_error(hdlr.y, hdlr.model.predict(hdlr.X))
-    print('The MSE is:', score)
+    return score
 
 
 @multimethod

@@ -1,20 +1,21 @@
 from multimethod import multimethod
-
 import shap
-
 from handlers import Handler
 from handlers.simple import StandardHandler
 import matplotlib.pyplot as plt
+from streamlit import cache
 
-# multimethod annotation is for multiple dispatch to different handler types.
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
     """
-    Perform an analysis which outputs a bar plot of SHAP values for the model.
-    :return: None
+    Perform an analysis which returns the SHAP values for the model.
+    :return: a very large array TODO: (not sure how to interpret it at the moment)
     """
 
     # Preconditions
@@ -26,13 +27,8 @@ def analyse(hdlr: StandardHandler):
     # Obtain the SHAP values.
     explainer = shap.explainers.Exact(hdlr.model.predict_proba, hdlr.X)
     shap_values = explainer(hdlr.X[:100])
-    class_idx = 0  # An index corresponding to the target class as according to hdlr.model.classes_
-    shap_values = shap_values[..., class_idx]
 
-    # Display the results.
-    shap.plots.bar(shap_values, show=False)
-    plt.title(f'Mean absolute SHAP values for {hdlr.model.classes_[class_idx]}')
-    plt.show()
+    return shap_values
 
 
 @multimethod

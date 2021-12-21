@@ -1,21 +1,21 @@
 from multimethod import multimethod
-
 from handlers import Handler
 from handlers.simple import StandardHandler
-
-
-# multimethod annotation is for multiple dispatch to different handler types.
+from streamlit import cache
 from handlers.testing import TestHandler
 
 
+# cache annotation is for streamlit caching (google it).
+# multimethod annotation is for multiple dispatch to different handler types (google multimethod package).
+@cache
 @multimethod
 def analyse(hdlr: StandardHandler):
     """
-    Perform an analysis to get the number of samples and features in the data.
-    If the problem_type is classification, then this method will also analyse number of classes.
+    Perform an analysis to get the number of samples, features, and the ratio between the samples and features in the data.
+    If the problem_type is classification, then this method will also return the number of classes.
     This method will throw an exception if either not overridden by a subclass or super() is called.
 
-    :return: None
+    :returns: Either a tuple (n_samples, n_features, samples_per_feature) OR a tuple (n_samples, n_features, samples_per_feature, n_classes)
     """
 
     # Pre-condition checks.
@@ -28,22 +28,15 @@ def analyse(hdlr: StandardHandler):
     nrows = hdlr.data.shape[0]
     ncols = hdlr.data.shape[1]
 
-    # Now we print the results.
+    # Calculate the samples to feature ratio
+    samples_per_feature = round(nrows / ncols, 2)
 
-    # If doing a classification problem also print the number of classes.
+    # If doing a classification problem also return the number of classes.
     if hdlr.problem_type == 'classification':
         nclasses = len(hdlr.y.unique())
-        print(f'Data has {nrows} samples, {ncols} features (including target feature), and {nclasses} classes.')
+        return nrows, ncols, samples_per_feature, nclasses
     else:
-        print(f'Data has {nrows} samples, {ncols} features (including target feature).')
-
-    # Additionally, print out the number of samples per feature.
-    samples_per_feature = round(nrows / ncols, 2)
-    if samples_per_feature < 5:
-        print(f'There are {samples_per_feature} samples per feature. Consider increasing the number of samples '
-              f'or decreasing the number features.')
-    else:
-        print(f'There are {samples_per_feature} samples per feature.')
+        return nrows, ncols, samples_per_feature
 
 
 @multimethod

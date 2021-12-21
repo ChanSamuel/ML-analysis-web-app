@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 
 from handlers import Handler, all_problem_names
-from handlers.exceptions import FileLoadingException
+from exceptions import FileLoadingException
 
 from warnings import warn
 
