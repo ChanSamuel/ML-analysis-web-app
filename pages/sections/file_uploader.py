@@ -37,6 +37,28 @@ def transition():
         st.session_state.current_page = pages.AnalysisChoicePage()
 
 
+def submit():
+    selected = st.session_state.file_selector
+    if selected == 'Iris dataset: LogisticRegression':
+        model_file = open('testfiles/test_model_iris.sav', 'rb')
+        data_file = open('testfiles/Iris_test.csv')
+    elif selected == 'Boston dataset: DecisionTreeRegressor':
+        model_file = open('testfiles/test_model_boston.sav', 'rb')
+        data_file = open('testfiles/Boston_test.csv')
+    else:
+        st.warning('Error: default model not found.')
+        return
+
+    # Store the handler in session.
+    st.session_state.hdlr = StandardHandler(data_file=data_file, model_file=model_file, target_idx=-1)
+
+    # Clear the uploaded files.
+    st.session_state.uploaded_files.clear()
+
+    # Next page.
+    st.session_state.current_page = pages.AnalysisChoicePage()
+
+
 class FileSection(Section):
     """
     A file Section which consists of a file uploader.
@@ -48,3 +70,10 @@ class FileSection(Section):
         st.file_uploader(f'Allowed files are: {comma.join(allowed_files)}', type=allowed_files,
                          accept_multiple_files=True,
                          on_change=transition, key='uploaded_files')
+        st.subheader('Or choose a sample model')
+        form = st.form("file_select_form")
+        form.selectbox('Choose sample model.',
+                       ['Iris dataset: LogisticRegression', 'Boston dataset: DecisionTreeRegressor'],
+                       key='file_selector')
+
+        form.form_submit_button(on_click=submit)
