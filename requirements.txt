@@ -2,3 +2,4 @@ streamlit
 multimethod
 sklearn
 pandas
+matplotlib
