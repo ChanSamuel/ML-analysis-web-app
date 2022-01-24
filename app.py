@@ -3,8 +3,8 @@ import pages as pages
 
 # Initialise the current page if using fresh session.
 if 'current_page' not in st.session_state:
-    st.session_state['current_page'] = pages.InitialPage()
+    st.session_state['current_page'] = pages.FileUploadPage()
 
 # Display the page by displaying each of its sections.
-for segment in st.session_state['current_page']:
+for segment in st.session_state['current_page'].sections:
     segment.display()

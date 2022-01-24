@@ -1,16 +1,16 @@
 import pickle
 
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeRegressor
 
 # Create the model.
 print('Training the model.')
-data = pd.read_csv('testfiles/Iris.csv')
+data = pd.read_csv('testfiles/Boston.csv')
 X = data.iloc[:, :-1]
 y = data.iloc[:, -1]
-clf = LogisticRegression(random_state=0, max_iter=1000).fit(X, y)
+clf = DecisionTreeRegressor(random_state=0).fit(X, y)
 
-filename = 'test_model_iris.sav'
+filename = 'test_model_boston.sav'
 # Save the model to disk
 print('Saving model to disk')
 pickle.dump(clf, open('testfiles/' + filename, 'wb'))

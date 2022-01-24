@@ -1,11 +1,19 @@
 import pickle
-
 import pandas as pd
-
-from handlers import Handler, all_problem_names
+from sklearn.base import is_classifier
+from handlers import Handler
 from exceptions import FileLoadingException
-
 from warnings import warn
+
+
+def supported_file_extensions():
+    """
+    Return the supported file extensions.
+    Used by pages.sections.file_uploader
+
+    :return: an array ['.csv', '.sav']
+    """
+    return ['.csv', '.sav']
 
 
 def warning(msg):
@@ -47,14 +55,13 @@ def validate_data(data):
             raise ValueError('Data cannot be empty!')
 
         # Provide a warning with a message informing the user what just happened.
-        warning(f'{n_missing} missing values were found and dropped.')
+        warning(f'Warning: {n_missing} missing values were found and dropped.')
 
 
 class StandardHandler(Handler):
     """
-    Is able to handle and load in tabular data (.csv format) with a pickled sklearn model.
-    StandardHandler is the default handler, it should be supported by most if not all analyser types.
-    See handlers.Handler for a description of what a Handler does.
+    Loads, validates, and provides methods to access the underlying model and data.
+    Is able to load in tabular data (.csv format) and a pickled sklearn model.
     """
 
     # ================================= FILE LOADING METHODS =================================
@@ -93,7 +100,7 @@ class StandardHandler(Handler):
 
     # ================================= CONSTRUCTOR METHOD =================================
 
-    def __init__(self, data_file, model_file, problem_type, target_idx):
+    def __init__(self, data_file, model_file, target_idx):
         """
         Constructs this object by loading in the data and model from the given files and storing them as fields.
         Raises an exception if file loading fails.
@@ -109,20 +116,21 @@ class StandardHandler(Handler):
         super().__init__()
 
         # Pre-condition checks.
-        if not isinstance(problem_type, str):
-            raise ValueError(f'Precondition: problem_type should be a string got {type(problem_type)}')
-        if not (problem_type in all_problem_names()):
-            raise ValueError('Precondition: problem_type should match an item returned by '
-                             'handlers.utilities.get_problem_names(), instead found ' + problem_type)
         if not isinstance(target_idx, int):
             raise ValueError('Precondition: target_idx must be an int')
 
-        self.problem_type = problem_type  # A string which is either classification or regression.
         self.target_idx = target_idx  # The column index of the target class from the data.
         self.data = self.load_data(data_file)  # The raw data as loaded by load_data().
         self.X = self.data.drop(self.data.columns[self.target_idx], axis=1)  # The training features.
         self.y = self.data.iloc[::, self.target_idx]  # The target column.
         self.model = self.load_model(model_file)  # The sklearn trained model.
+
+        # Set the problem type.
+        problem_type = 'regression'
+        if is_classifier(self.model):
+            problem_type = 'classification'
+
+        self.problem_type = problem_type
 
     # ================================= PREDICTION METHODS =================================
 

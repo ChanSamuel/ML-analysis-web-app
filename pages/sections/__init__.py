@@ -7,17 +7,16 @@ When put together, Sections make up a 'Page' of content.
 
 class Section:
     """
-    A Section does the following:
-     - Is constructed with a certain set of parameters which it stores as fields.
-     - Raises an exception if the given parameters are invalid.
-     - Uses said fields to display it's content.
+    Each Section has a display() method which displays its content to the page.
+    If the particular section displays a metric, then it should implement a fill(container) method which takes
+    in a streamlit container and displays its content inside that container rather than on the page. This fill()
+    method will be used rather than display().
     """
 
     def __init__(self):
         """
         Does nothing.
-        Subclasses are expected to provide their own parameters to construct with, and throw an exception if
-        the passed parameters are not correct.
+        Subclasses are expected to provide their own parameters to construct with.
         """
         pass
 

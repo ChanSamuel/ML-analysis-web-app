@@ -1,10 +1,7 @@
 import pickle
-
 import pandas as pd
-
-from handlers import Handler, all_problem_names
+from handlers import Handler
 from exceptions import FileLoadingException
-
 from warnings import warn
 
 
@@ -52,9 +49,8 @@ def validate_data(data):
 
 class TestHandler(Handler):
     """
+    This Handler is used for testing.
     Is able to handle and load in tabular data (.csv format) with a pickled sklearn model.
-    TestHandler is the default handler, it should be supported by most if not all analyser types.
-    See handlers.Handler for a description of what a Handler does.
     """
 
     # ================================= FILE LOADING METHODS =================================
@@ -111,9 +107,9 @@ class TestHandler(Handler):
         # Pre-condition checks.
         if not isinstance(problem_type, str):
             raise ValueError(f'Precondition: problem_type should be a string got {type(problem_type)}')
-        if not (problem_type in all_problem_names()):
-            raise ValueError('Precondition: problem_type should match an item returned by '
-                             'handlers.utilities.get_problem_names(), instead found ' + problem_type)
+        if not (problem_type in ['classification', 'regression']):
+            raise ValueError('Precondition: problem_type should be classification or regression. '
+                             'Instead found: ' + problem_type)
         if not isinstance(target_idx, int):
             raise ValueError('Precondition: target_idx must be an int')
 
